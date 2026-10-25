@@ -322,9 +322,12 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (
       name.includes("art") ||
       name.includes("music") ||
+      name.includes("manga") ||
+      name.includes("comic") ||
       name.includes("theater") ||
       name.includes("drama") ||
       desc.includes("creative") ||
+      desc.includes("graphic") ||
       desc.includes("paint")
     ) {
       return "arts";
