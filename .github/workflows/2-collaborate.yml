@@ -3,6 +3,13 @@ name: Step 2
 on:
   pull_request_review:
     types: [submitted]
+  workflow_dispatch:
+    inputs:
+      skip_copilot:
+        description: "I cannot access Copilot and want to continue the exercise manually"
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -19,6 +26,7 @@ jobs:
 
   post_next_step_content:
     name: Post next step content
+    if: github.event_name != 'workflow_dispatch' || inputs.skip_copilot
     needs: [find_exercise]
     runs-on: ubuntu-latest
     env:

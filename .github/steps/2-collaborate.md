@@ -158,4 +158,11 @@ If you don't get feedback, here are some things to check:
 - Make sure your reviews include `@copilot` mention
 - To progress to the next step in this lab you need to merge the pull request!
 
+If you don't have access to Copilot, you can still read the material above and continue manually:
+
+1. Open the repository's **Actions** tab and select **Step 2**.
+1. Click **Run workflow**, check **I cannot access Copilot and want to continue the exercise manually**, then run it.
+
+This skips the Copilot-dependent activity; it does not verify Copilot collaboration.
+
 </details>
