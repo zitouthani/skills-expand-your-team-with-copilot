@@ -22,9 +22,24 @@ def init_database():
 
     # Add any missing activities without overwriting existing data
     for name, details in initial_activities.items():
+        if name == "Manga Maniacs":
+            activity_changes = {
+                "schedule": details["schedule"],
+                "schedule_details": details["schedule_details"],
+                "max_participants": details["max_participants"],
+            }
+            update = {
+                "$setOnInsert": {
+                    key: value for key, value in details.items()
+                    if key not in activity_changes
+                },
+                "$set": activity_changes,
+            }
+        else:
+            update = {"$setOnInsert": details}
         activities_collection.update_one(
             {"_id": name},
-            {"$setOnInsert": details},
+            update,
             upsert=True
         )
             
@@ -37,13 +52,13 @@ def init_database():
 initial_activities = {
     "Manga Maniacs": {
     "description": "Explore the fantastic stories of the most interesting characters from Japanese Manga (graphic novels).",
-    "schedule": "Tuesdays, 7:00 PM - 8:00 PM",
+    "schedule": "Tuesdays, 5:00 PM - 6:00 PM",
     "schedule_details": {
         "days": ["Tuesday"],
-        "start_time": "19:00",
-        "end_time": "20:00"
+        "start_time": "17:00",
+        "end_time": "18:00"
     },
-    "max_participants": 15,
+    "max_participants": 25,
     "participants": []
 },
     "Chess Club": {
