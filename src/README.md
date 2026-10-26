@@ -8,6 +8,7 @@ A super simple website application that allows students to view and sign up for 
 - Filter activities by difficulty level or show activities with no specified difficulty
 - Sign up for activities
 - Switch between light and dark mode using the button in the top-right corner; your choice is saved in this browser.
+- See Octodex mascots and subtle animated Git-style branch lines in the background; the animation respects reduced-motion preferences.
 
 ## Development Guide
 
