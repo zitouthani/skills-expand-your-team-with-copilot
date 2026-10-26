@@ -15,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const difficultyFilters = document.querySelectorAll(".difficulty-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  const groupBySelect = document.getElementById("group-by");
 
   // Authentication elements
   const loginButton = document.getElementById("login-button");
@@ -504,14 +505,45 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Display filtered activities
-    Object.entries(filteredActivities).forEach(([name, details]) => {
-      renderActivityCard(name, details);
-    });
+    // Display filtered activities, optionally grouped by category
+    if (groupBySelect.value === "category") {
+      const groupedActivities = {};
+      Object.entries(filteredActivities).forEach(([name, details]) => {
+        const activityType = getActivityType(name, details.description);
+        if (!groupedActivities[activityType]) {
+          groupedActivities[activityType] = [];
+        }
+        groupedActivities[activityType].push([name, details]);
+      });
+
+      Object.entries(activityTypes).forEach(([type, typeInfo]) => {
+        const activities = groupedActivities[type];
+        if (!activities) {
+          return;
+        }
+
+        const group = document.createElement("div");
+        group.className = "activity-group";
+        const heading = document.createElement("h4");
+        heading.textContent = typeInfo.label;
+        const cards = document.createElement("div");
+        cards.className = "activity-group-cards";
+        group.append(heading, cards);
+        activitiesList.appendChild(group);
+
+        activities.forEach(([name, details]) => {
+          renderActivityCard(name, details, cards);
+        });
+      });
+    } else {
+      Object.entries(filteredActivities).forEach(([name, details]) => {
+        renderActivityCard(name, details);
+      });
+    }
   }
 
   // Function to render a single activity card
-  function renderActivityCard(name, details) {
+  function renderActivityCard(name, details, container = activitiesList) {
     const activityCard = document.createElement("div");
     activityCard.className = "activity-card";
 
@@ -625,7 +657,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    activitiesList.appendChild(activityCard);
+    container.appendChild(activityCard);
   }
 
   // Event listeners for search and filter
@@ -662,6 +694,8 @@ document.addEventListener("DOMContentLoaded", () => {
       displayFilteredActivities();
     });
   });
+
+  groupBySelect.addEventListener("change", displayFilteredActivities);
 
   // Add event listeners to day filter buttons
   dayFilters.forEach((button) => {
