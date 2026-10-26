@@ -1,0 +1,63 @@
+name: Report a website problem
+description: Tell us when something on the activities website is not working as expected.
+title: "[Problem] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe what happened in everyday language. Please do not include passwords or private information about students.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What went wrong?
+      description: Describe the problem and which page or activity it affects.
+      placeholder: Explain what you were trying to do.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What did you do before the problem happened?
+      description: List the steps that another person could follow to see the same problem.
+      placeholder: |
+        1. Open the activities page.
+        2. Select an activity.
+        3. Describe what happens.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen, and what happened instead?
+      description: Include the message you saw, if there was one.
+      placeholder: |
+        I expected:
+        Instead:
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: How will you know the problem is fixed?
+      description: Describe what should work correctly after the fix.
+      placeholder: |
+        - I can complete the steps above.
+        - The page shows the correct result.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Do you have a suggestion or example that could help?
+      description: Share a screenshot description or a suggestion for where to start. Do not upload images containing private student information.
+      placeholder: Enter a suggestion, or write "No suggestion".
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Is there anything else we should know?
+      description: Include the device or browser if you know it, when the issue started, or anything that should not change.
+      placeholder: Enter relevant details or limitations, or write "None".
+    validations:
+      required: true

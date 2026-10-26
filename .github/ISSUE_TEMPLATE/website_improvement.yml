@@ -1,0 +1,50 @@
+name: Suggest a website improvement
+description: Request a new feature or a change to make the activities website easier to use.
+title: "[Improvement] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Focus on what teachers or students need to do. Please do not include private information about students.
+  - type: textarea
+    id: need
+    attributes:
+      label: What are you trying to do?
+      description: Describe the difficulty or missing capability and who it affects.
+      placeholder: Explain the problem in everyday language.
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: What change would help?
+      description: Describe what you would like the website to do.
+      placeholder: Give an example of how it could work.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: How will you know this improvement is complete?
+      description: List the things a teacher or student should be able to do after the change.
+      placeholder: |
+        - I can find the information I need.
+        - The page is easy to use on a phone.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Do you have an example or suggestion to get started?
+      description: Share an example, a page that already works well, or another helpful hint.
+      placeholder: Enter an example or suggestion, or write "No suggestion".
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Are there any limitations or related details to consider?
+      description: Include deadlines, pages or activities this relates to, and anything that should not change.
+      placeholder: Enter any limitations or related context, or write "None".
+    validations:
+      required: true

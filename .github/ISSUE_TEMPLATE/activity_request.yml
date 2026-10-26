@@ -1,0 +1,72 @@
+name: Add or change an activity
+description: Request an extracurricular activity be added, updated, or removed.
+title: "[Activity] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for activity information on the Mergington High School website. Please do not include private information about students.
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: What would you like us to do?
+      options:
+        - Add an activity
+        - Update an activity
+        - Remove an activity
+    validations:
+      required: true
+  - type: input
+    id: activity_name
+    attributes:
+      label: Which activity is this about?
+      description: For a new activity, enter its name. For a change or removal, enter its current name.
+      placeholder: e.g. Manga Maniacs
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What needs to change, and why?
+      description: Describe the missing or incorrect information and who it affects.
+      placeholder: Explain the problem in everyday language.
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: What should the activity information say?
+      description: Include the details that apply, such as its description, meeting day and time, location, or maximum attendance.
+      placeholder: |
+        Description:
+        Meeting day and time:
+        Location:
+        Maximum attendance:
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: How will you know this request is complete?
+      description: List what should be true on the website after the change.
+      placeholder: |
+        - The activity appears with the correct name.
+        - The schedule and description match the details above.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Do you have a suggestion or example?
+      description: Share a helpful starting point, example, or where to find the correct information.
+      placeholder: Enter a suggestion, or write "No suggestion".
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Are there any limitations or other details to consider?
+      description: Include deadlines, related activities, or anything that should not change. Do not include private student information.
+      placeholder: Enter any limitations or related context, or write "None".
+    validations:
+      required: true
