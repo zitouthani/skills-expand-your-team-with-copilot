@@ -24,6 +24,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
+  const themeToggle = document.getElementById("theme-toggle");
+
+  // Initialize the saved color theme
+  function setTheme(theme) {
+    const isDark = theme === "dark";
+    document.documentElement.dataset.theme = isDark ? "dark" : "light";
+    themeToggle.textContent = isDark ? "☀️ Light" : "🌙 Dark";
+    themeToggle.setAttribute(
+      "aria-label",
+      `Switch to ${isDark ? "light" : "dark"} mode`
+    );
+    themeToggle.setAttribute("aria-pressed", isDark);
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+  }
+
+  setTheme(localStorage.getItem("theme") === "dark" ? "dark" : "light");
+  themeToggle.addEventListener("click", () => {
+    setTheme(
+      document.documentElement.dataset.theme === "dark" ? "light" : "dark"
+    );
+  });
 
   // Activity categories with corresponding colors
   const activityTypes = {
