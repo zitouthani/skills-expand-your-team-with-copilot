@@ -26,6 +26,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
   const themeToggle = document.getElementById("theme-toggle");
+  const cardViewButton = document.getElementById("card-view-button");
+  const calendarViewButton = document.getElementById("calendar-view-button");
+
+  // Current view: "card" or "calendar"
+  let currentView =
+    localStorage.getItem("view") === "calendar" ? "calendar" : "card";
+
+  function setView(view) {
+    currentView = view === "calendar" ? "calendar" : "card";
+    localStorage.setItem("view", currentView);
+    cardViewButton.classList.toggle("active", currentView === "card");
+    calendarViewButton.classList.toggle("active", currentView === "calendar");
+    cardViewButton.setAttribute("aria-pressed", currentView === "card");
+    calendarViewButton.setAttribute("aria-pressed", currentView === "calendar");
+    activitiesList.classList.toggle("calendar-mode", currentView === "calendar");
+    displayFilteredActivities();
+  }
+
+  cardViewButton.addEventListener("click", () => setView("card"));
+  calendarViewButton.addEventListener("click", () => setView("calendar"));
 
   // Initialize the saved color theme
   function setTheme(theme) {
@@ -504,10 +524,164 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    if (currentView === "calendar") {
+      renderCalendar(filteredActivities);
+      return;
+    }
+
     // Display filtered activities
     Object.entries(filteredActivities).forEach(([name, details]) => {
       renderActivityCard(name, details);
     });
+  }
+
+  // Convert "HH:MM" to minutes since midnight
+  function timeToMinutes(time) {
+    const [hours, minutes] = time.split(":").map(Number);
+    return hours * 60 + minutes;
+  }
+
+  // Place overlapping entries side by side; returns entries with column info
+  function layoutDayEntries(entries) {
+    entries.sort((a, b) => a.start - b.start || a.end - b.end);
+    const result = [];
+    let group = [];
+    let groupEnd = 0;
+
+    function finishGroup() {
+      const columns = group.reduce((max, e) => Math.max(max, e.column + 1), 1);
+      group.forEach((e) => {
+        e.columns = columns;
+        result.push(e);
+      });
+      group = [];
+    }
+
+    entries.forEach((entry) => {
+      if (group.length && entry.start >= groupEnd) {
+        finishGroup();
+      }
+      const used = group
+        .filter((e) => e.end > entry.start)
+        .map((e) => e.column);
+      let column = 0;
+      while (used.includes(column)) column++;
+      entry.column = column;
+      group.push(entry);
+      groupEnd = group.length === 1 ? entry.end : Math.max(groupEnd, entry.end);
+    });
+    if (group.length) finishGroup();
+    return result;
+  }
+
+  // Render a one-week calendar (Sunday - Saturday) with time going down
+  function renderCalendar(activities) {
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const hourHeight = 60;
+    const byDay = Object.fromEntries(days.map((d) => [d, []]));
+    let earliest = 24 * 60;
+    let latest = 0;
+
+    Object.entries(activities).forEach(([name, details]) => {
+      const schedule = details.schedule_details;
+      if (!schedule) return;
+      const start = timeToMinutes(schedule.start_time);
+      const end = Math.max(timeToMinutes(schedule.end_time), start + 15);
+      earliest = Math.min(earliest, start);
+      latest = Math.max(latest, end);
+      schedule.days.forEach((day) => {
+        if (byDay[day]) byDay[day].push({ name, details, start, end });
+      });
+    });
+
+    if (latest === 0) {
+      activitiesList.innerHTML = `
+        <div class="no-results">
+          <h4>No scheduled activities to show</h4>
+          <p>Try adjusting your search or filter criteria</p>
+        </div>
+      `;
+      return;
+    }
+
+    const firstHour = Math.floor(earliest / 60);
+    const lastHour = Math.ceil(latest / 60);
+    const gridHeight = (lastHour - firstHour) * hourHeight;
+
+    const calendar = document.createElement("div");
+    calendar.className = "calendar";
+
+    const header = document.createElement("div");
+    header.className = "calendar-header";
+    header.innerHTML =
+      "<div></div>" + days.map((d) => `<div>${d}</div>`).join("");
+    calendar.appendChild(header);
+
+    const body = document.createElement("div");
+    body.className = "calendar-body";
+
+    const timeColumn = document.createElement("div");
+    timeColumn.className = "calendar-times";
+    timeColumn.style.height = `${gridHeight}px`;
+    for (let h = firstHour; h < lastHour; h++) {
+      const label = document.createElement("div");
+      label.className = "calendar-time-label";
+      label.style.height = `${hourHeight}px`;
+      const hour12 = h % 12 === 0 ? 12 : h % 12;
+      label.textContent = `${hour12} ${h < 12 ? "AM" : "PM"}`;
+      timeColumn.appendChild(label);
+    }
+    body.appendChild(timeColumn);
+
+    days.forEach((day) => {
+      const column = document.createElement("div");
+      column.className = "calendar-day";
+      column.style.height = `${gridHeight}px`;
+      column.style.backgroundSize = `100% ${hourHeight}px`;
+
+      layoutDayEntries(byDay[day]).forEach((entry) => {
+        const { name, details } = entry;
+        const spots = details.max_participants - details.participants.length;
+        const type = getActivityType(name, details.description);
+        const entryEl = document.createElement("div");
+        entryEl.className = "calendar-entry";
+        entryEl.tabIndex = 0;
+        entryEl.style.top = `${((entry.start - firstHour * 60) / 60) * hourHeight}px`;
+        entryEl.style.height = `${((entry.end - entry.start) / 60) * hourHeight}px`;
+        entryEl.style.width = `${100 / entry.columns}%`;
+        entryEl.style.left = `${(entry.column * 100) / entry.columns}%`;
+        entryEl.style.backgroundColor = activityTypes[type].color;
+        entryEl.style.color = activityTypes[type].textColor;
+        entryEl.title = [
+          name,
+          details.description,
+          formatSchedule(details),
+          `Enrolled: ${details.participants.length}/${details.max_participants} (${spots} spots left)`,
+          details.difficulty ? `Difficulty: ${details.difficulty}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n");
+
+        const nameEl = document.createElement("strong");
+        nameEl.textContent = name;
+        const countEl = document.createElement("span");
+        countEl.textContent = `${details.participants.length}/${details.max_participants} enrolled`;
+        entryEl.append(nameEl, countEl);
+        column.appendChild(entryEl);
+      });
+      body.appendChild(column);
+    });
+
+    calendar.appendChild(body);
+    activitiesList.appendChild(calendar);
   }
 
   // Function to render a single activity card
@@ -911,6 +1085,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   checkAuthentication();
+  setView(currentView);
   initializeFilters();
   fetchActivities();
 });
